@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/bridgewwater/temp-go-cron/util/sys"
-	"github.com/lexkong/log"
+	"github.com/sinlovgo/log"
 	"github.com/spf13/viper"
 	"net/url"
 	"strings"

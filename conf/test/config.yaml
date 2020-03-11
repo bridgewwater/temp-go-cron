@@ -11,8 +11,8 @@ sslEnable: false                    # isEnable ssl mode this will cover by env E
 log:
   writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
   logger_level: INFO             # log level: DEBUG, INFO, WARN, ERROR, FATAL
-  logger_file: log/server.log     # log file setting
-  log_format_text: false          # format `false` will format json, `true` will show abs
+  logger_file: log/cron.log     # log file setting
+  log_format_text: false          # format `true` will format json, `false` will show abs
   rollingPolicy: size             # rotate policy, can choose as: daily, size. `daily` store as daily，`size` will save as max
   log_rotate_date: 1              # rotate date, coordinate `rollingPolicy: daily`
   log_rotate_size: 8              # rotate size，coordinate `rollingPolicy: size`
@@ -31,17 +31,4 @@ monitor: # monitor
   pprof: false                       # security true or false
   security: true                    # debug and security security true or false
   securityUser:
-    admin: f6011b78008fd971784b2490b474cf659ffb1e # admin:pwd
-
-swagger:                            # swagger not show at release
-  root: /swagger                    # swagger root
-  index: /swagger/index.html        # swagger index
-  title: temp-go-cron          # swagger title
-  description: This is a sample server celler server. # swagger description
-  version: 1.0                      # swagger version
-  host: 127.0.0.1:39000             # swagger host:port
-  security: true                    # swagger security true or false
-  user:                             # swagger user setting of BasicAuth
-    admin: 36116f7c73bc9acb2a7a26   # admin:pwd
-    user: e2236a11aceac4de          # user:pwd
-
+    admin:  # admin:pwd

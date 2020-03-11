@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/lexkong/log"
+	"github.com/sinlovgo/log"
 	"github.com/spf13/viper"
 )
 

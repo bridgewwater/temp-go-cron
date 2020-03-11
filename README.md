@@ -60,7 +60,7 @@ swag version v1.4.1
 log:
   writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
   logger_level: DEBUG             # log level: DEBUG, INFO, WARN, ERROR, FATAL
-  logger_file: log/server.log     # log file setting
+  logger_file: log/cron.log     # log file setting
   log_format_text: false          # format `false` will format json, `true` will show abs
   rollingPolicy: size             # rotate policy, can choose as: daily, size. `daily` store as daily，`size` will save as max
   log_rotate_date: 1              # rotate date, coordinate `rollingPolicy: daily`
