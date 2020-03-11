@@ -1,0 +1,47 @@
+runmode: test               # run mode: debug, release, test
+addr: :39000                  # HTTP port will cover by env ENV_AUTO_HOST and most in docker use env ENV_WEB_HOST
+name: temp-go-cron              # name of API Server
+
+base_path: /v1                     # api version
+prod_url: http://127.0.0.1:39000   # prod url full ip:port
+test_url: http://127.0.0.1:39000   # test url full ip:port
+dev_url: http://127.0.0.1:39000     # dev url full ip:port
+sslEnable: false                    # isEnable ssl mode this will cover by env ENV_WEB_HTTPS_ENABLE
+
+log:
+  writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
+  logger_level: INFO             # log level: DEBUG, INFO, WARN, ERROR, FATAL
+  logger_file: log/server.log     # log file setting
+  log_format_text: false          # format `false` will format json, `true` will show abs
+  rollingPolicy: size             # rotate policy, can choose as: daily, size. `daily` store as daily，`size` will save as max
+  log_rotate_date: 1              # rotate date, coordinate `rollingPolicy: daily`
+  log_rotate_size: 8              # rotate size，coordinate `rollingPolicy: size`
+  log_backup_count: 7             # backup max count, log system will compress the log file when log reaches rotate set, this set is max file count
+
+monitor: # monitor
+  status: true             # api status use {monitor.health}
+  health: /status/health   # api health
+  retryCount: 10           # ping api health retry count
+  hardware: true           # hardware true or false
+  status_hardware:
+    disk: /status/hardware/disk     # hardware api disk
+    cpu: /status/hardware/cpu       # hardware api cpu
+    ram: /status/hardware/ram       # hardware api ram
+  debug: true                       # debug true or false
+  pprof: false                       # security true or false
+  security: true                    # debug and security security true or false
+  securityUser:
+    admin: f6011b78008fd971784b2490b474cf659ffb1e # admin:pwd
+
+swagger:                            # swagger not show at release
+  root: /swagger                    # swagger root
+  index: /swagger/index.html        # swagger index
+  title: temp-go-cron          # swagger title
+  description: This is a sample server celler server. # swagger description
+  version: 1.0                      # swagger version
+  host: 127.0.0.1:39000             # swagger host:port
+  security: true                    # swagger security true or false
+  user:                             # swagger user setting of BasicAuth
+    admin: 36116f7c73bc9acb2a7a26   # admin:pwd
+    user: e2236a11aceac4de          # user:pwd
+

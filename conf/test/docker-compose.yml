@@ -1,0 +1,24 @@
+# copy right
+# Licenses http://www.apache.org/licenses/LICENSE-2.0
+# more info see https://docs.docker.com/compose/compose-file/ or https://docker.github.io/compose/compose-file/
+version: '3.7'
+
+networks:
+  default:
+#volumes:
+#  web-data:
+services:
+  temp-go-cron:
+    container_name: 'temp-go-cron'
+    image: alpine:3.10
+    ports:
+      - "39000:39000"
+    volumes:
+      - "./dist/linux/test/1.0.0/:/usr/src/myapp"
+      - "./log:/usr/src/myapp/log"
+    environment:
+      - ENV_WEB_HTTPS_ENABLE=false
+      - ENV_AUTO_HOST=false
+    #      - ENV_WEB_HOST=0.0.0.0:38080
+    working_dir: "/usr/src/myapp"
+    command: ["./main", "-c", "./config.yaml"]
