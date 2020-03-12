@@ -23,9 +23,9 @@ func BaseURL() string {
 // read default config by conf/config.yaml
 // can change by CLI by `-c`
 // this config can config by ENV
-//	ENV_WEB_HTTPS_ENABLE=false
+//	ENV_CRON_HTTPS_ENABLE=false
 //	ENV_AUTO_HOST=true
-//	ENV_WEB_HOST 127.0.0.1:8000
+//	ENV_CRON_HOST 127.0.0.1:8000
 func initBaseConf() {
 	ssLEnable := false
 	if viper.GetBool(defaultEnvHttpsEnable) {
@@ -48,7 +48,6 @@ func initBaseConf() {
 		panic(err)
 	}
 
-	log.Debugf("uri.Host %v", uri.Host)
 	baseHOSTByEnv := viper.GetString(defaultEnvHost)
 	if baseHOSTByEnv != "" {
 		uri.Host = baseHOSTByEnv
@@ -74,7 +73,7 @@ func initBaseConf() {
 	if ssLEnable {
 		apiBase = strings.Replace(apiBase, "http://", "https://", 1)
 	}
-
+	log.Debugf("config file uri.Host %v", uri.Host)
 	log.Debugf("apiBase %v", apiBase)
 	baseConf = BaseConf{
 		BaseURL:   apiBase,

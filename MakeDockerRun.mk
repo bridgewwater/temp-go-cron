@@ -36,8 +36,8 @@ localIPLinux:
 
 dockerRunLinux: localIPLinux
 	docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
-	ENV_WEB_HOST=$(ROOT_LOCAL_IP_V4_LINUX) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_LINUX) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
 	docker-compose up -d
@@ -48,8 +48,8 @@ dockerRunLinux: localIPLinux
 
 dockerRestartLinux: localIPLinux
 	docker inspect --format='{{ .State.Status}}' $(ROOT_DOCKER_IMAGE_NAME)
-	ENV_WEB_HOST=$(ROOT_LOCAL_IP_V4_LINUX) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_LINUX) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
 	docker-compose up -d
@@ -64,8 +64,8 @@ localIPDarwin:
 
 dockerRunDarwin: localIPDarwin
 	docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
-	ENV_WEB_HOST=$(ROOT_LOCAL_IP_V4_DARWIN) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_DARWIN) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
 	docker-compose up -d
@@ -76,8 +76,8 @@ dockerRunDarwin: localIPDarwin
 
 dockerRestartDarwin: localIPDarwin
 	docker inspect --format='{{ .State.Status}}' $(ROOT_NAME)
-	ENV_WEB_HOST=$(ROOT_LOCAL_IP_V4_DARWIN) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_DARWIN) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
 	docker-compose restart
@@ -89,13 +89,13 @@ dockerRestartDarwin: localIPDarwin
 dockerStop:
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	docker-compose stop
 
 dockerPrune: dockerStop
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
-	ENV_WEB_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	docker-compose rm -f $(ROOT_DOCKER_IMAGE_NAME)
 	-docker rmi -f $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
 	docker network prune

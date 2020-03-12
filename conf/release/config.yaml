@@ -1,12 +1,12 @@
-runmode: release               # run mode: debug, release, test
-addr: :39000                  # HTTP port will cover by env ENV_AUTO_HOST and most in docker use env ENV_WEB_HOST
-name: temp-go-cron              # name of API Server
+runmode: release             # run mode: debug, release, test
+name: temp-go-cron           # name of App
+addr: :39000                 # HTTP port will cover by use env: ENV_CRON_HOST
 
 base_path: /v1                     # api version
 prod_url: http://127.0.0.1:39000   # prod url full ip:port
 test_url: http://127.0.0.1:39000   # test url full ip:port
 dev_url: http://127.0.0.1:39000     # dev url full ip:port
-sslEnable: false                    # isEnable ssl mode this will cover by env ENV_WEB_HTTPS_ENABLE
+sslEnable: false                    # isEnable ssl mode this will cover by env ENV_CRON_HTTPS_ENABLE
 
 log:
   writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
@@ -31,4 +31,4 @@ monitor: # monitor
   pprof: false                       # security true or false
   security: true                    # debug and security security true or false
   securityUser:
-    admin:  # admin:pwd
+    admin:  abcdefg # admin:pwd

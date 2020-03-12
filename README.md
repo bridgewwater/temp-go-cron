@@ -30,7 +30,7 @@ most of doc at [http://127.0.0.1:39000/swagger/index.html](http://127.0.0.1:3900
 
 # dev
 
-> if want auto get local IP for fast develop, you can add evn `ENV_WEB_AUTO_HOST=true`
+> if want auto get local IP for fast develop, you can add evn `ENV_CRON_AUTO_HOST=true`
 
 - each new swagger must rebuild swagger doc by task `make buildSwagger`
 - also use task `make dev` or `make runTest` also run task buildSwagger before.
@@ -52,7 +52,9 @@ swag version v1.4.1
 
 # config
 
+- If a configuration file is specified, the specified configuration file is parsed
 - config file is `config.yaml` demo see [conf/config.yaml](conf/config.yaml)
+- If no configuration file is specified, the default configuration file is conf/config.yaml
 
 ## log
 
@@ -71,76 +73,5 @@ log:
 ## folder-Def
 
 ```
-.
-├── LIB.md
-├── LICENCE
-├── Makefile
-├── README.md
-├── build      # build folder, not add git management
-│   └── main
-├── conf       # config file path
-│   ├── config.yaml  # dev config
-│   ├── release      # prod config
-│   │   └── config.yaml
-│   └── test         # test config
-│       ├── config.yaml
-│       └── docker-compose.yml
-├── config     # config package for load config file
-│   ├── baseConf.go   # project config
-│   ├── config.go
-│   ├── logConf.go
-│   └── watchConf.go  # watcher config file change
-├── doc              # some doc
-│   ├── README.md
-│   ├── monitor.md
-│   ├── supervisor.md
-│   └── systemctl.md
-├── docker-compose.yml
-├── docs             # auto gen swagger pages, not add git management
-│   ├── docs.go
-│   ├── swagger.json
-│   └── swagger.yaml
-├── go.mod           # go mod file
-├── handler          # api hander foder
-│   ├── biz
-│   │   ├── bizBase.go
-│   │   ├── bizBase_test.go
-│   │   ├── bizForm.go
-│   │   ├── bizJson.go
-│   │   └── init_test.go
-│   ├── json.go
-│   └── jsonResponse.go
-├── log              # log fodler, not add git management 
-├── main.go          # main enter
-├── model            # model file
-│   ├── biz
-│   │   └── biz.go
-│   ├── dbMongoOffical.md
-│   ├── dbRedis.md
-│   └── response.go
-├── pkg              # public pkg
-│   ├── auth
-│   │   ├── auth.go
-│   │   └── auth.md
-│   └── errdef
-│       ├── errcode.go
-│       ├── errdef.go
-│       └── errdef_test.go
-├── router           # router folder
-│   ├── api.go
-│   ├── middleware
-│   │   └── header.go
-│   ├── monitor.go
-│   ├── router.go
-│   └── swagger.go
-├── util             # proejct util
-│   ├── folder
-│   │   └── path.go
-│   ├── parsehttp
-│   │   ├── Form.go
-│   │   └── query.go
-│   └── sys
-│       ├── network.go
-│       └── network_test.go
-└── vendor          #  go mod vendor, not add git management
+
 ```
