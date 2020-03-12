@@ -27,13 +27,15 @@ dockerLocalFileInit:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
 dockerLocalImageBuild: initDockerDevImages
-	GOPROXY="$(ENV_GO_PROXY)" go build -a -installsuffix cgo -ldflags '-w' -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
+	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
 
 dockerLocalFileRest:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash rest-build-tag.sh
 
-dockerLocalImageRebuild:
-	-docker image rm $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
+dockerLocalImageRemove:
+	-docker image rm -f $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
+
+dockerLocalImageRebuild: dockerLocalImageRemove
 	docker build --tag $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) .
 
 localIPLinux:

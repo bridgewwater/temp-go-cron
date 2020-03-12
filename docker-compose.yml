@@ -21,5 +21,8 @@ services:
       - ENV_CRON_HOST=${ENV_CRON_HOST}:${ENV_CRON_PORT}
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: "/usr/src/myapp"
-    command: ["make", "dev"]
+    entrypoint:
+      - ./cron
+      - -c
+      - conf/config.yaml
 

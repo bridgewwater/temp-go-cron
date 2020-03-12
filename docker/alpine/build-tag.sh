@@ -1,24 +1,17 @@
 #!/usr/bin/env bash
 
 build_version=v1.11.1
-
-build_catch_top_path=build
 build_os=alpine
 build_os_version=3.10
 build_go_image=golang:1.13-alpine
 build_docker_image_tag_mk_out=cron
-go_proxy_url=https://goproxy.cn/
 
 build_root_path=../../
-build_out_path=../../${build_catch_top_path}/${build_os}
-build_source_root=../../${build_catch_top_path}/${build_os}/${build_docker_image_tag_mk_out}
+build_root_name=temp-go-cron
 
-
-docker_temp_contain=temp-go-cron
-docker_temp_name=temp-go/go-cron
-docker_temp_tag=${build_version}
-docker_cp_from=/cron
-docker_cp_to=../../${build_catch_top_path}/${build_os}
+go_proxy_url=https://goproxy.cn/
+build_root_docker_image_name=${build_root_name}
+build_root_docker_image_tag=${build_version}
 
 
 run_path=$(pwd)
@@ -142,92 +135,33 @@ COPY --from=builder /conf/release/config.yaml /usr/src/myapp/conf/
 ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 " > ${build_root_path}Dockerfile
 
-exit 0
+echo -e "# copy right
+# Licenses http://www.apache.org/licenses/LICENSE-2.0
+# more info see https://docs.docker.com/compose/compose-file/ or https://docker.github.io/compose/compose-file/
+version: '3.7'
 
-dockerRemoveContainSafe ${docker_temp_contain}
-
-# run image to coyp build used file
-docker create --name ${docker_temp_contain} ${docker_temp_name}:${docker_temp_tag}
-checkFuncBack "docker create --name ${docker_temp_contain} ${docker_temp_name}:${docker_temp_tag}"
-docker cp ${docker_temp_contain}:${docker_cp_from} ${docker_cp_to}
-checkFuncBack "docker cp ${docker_temp_contain}:${docker_cp_from} ${docker_cp_to}"
-
-# clean local container and images abs
-
-# dockerRemoveContainSafe ${docker_temp_contain}
-# docker rmi -f ${docker_temp_name}:${docker_temp_tag}
-# (while :; do echo 'y'; sleep 3; done) | docker container prune
-# (while :; do echo 'y'; sleep 3; done) | docker image prune
-
-# clean local container and images
-read -t 7 -p "Are you sure to remove container? [y/n] " remove_container_input
-case $remove_container_input in
-    [yY]*)
-        dockerRemoveContainSafe ${docker_temp_contain}
-        (while :; do echo 'y'; sleep 3; done) | docker container prune
-        echo ""
-        echo "-> just remove all exit container!"
-    ;;
-    [nN]*)
-        pI "-> not remove container you can try as"
-        echo "docker rm ${docker_temp_contain}"
-        pI "to remove contain, but not full of contain"
-        pI "if want remove full just use"
-        echo "(while :; do echo 'y'; sleep 3; done) | docker container prune"
-        echo ""
-    ;;
-    *)
-        echo "-> out of time or unknow command remove container"
-        pI "remove container you can try as"
-        echo "docker rm ${docker_temp_contain}"
-        pI "to remove contain, but not full of contain"
-        pI "if want remove full just use"
-        echo "(while :; do echo 'y'; sleep 3; done) | docker container prune"
-        echo ""
-    ;;
-esac
-
-read -t 7 -p "Are you sure to remove image prune? [y/n] " remove_image_input
-case $remove_image_input in
-    [yY]*)
-        docker rmi -f ${docker_temp_name}:${docker_temp_tag}
-        (while :; do echo 'y'; sleep 3; done) | docker image prune
-        echo ""
-        echo "-> just remove all prune image!"
-    ;;
-    [nN]*)
-        pI "-> now not remove image you can try as"
-        echo "docker rmi -f ${docker_temp_name}:${docker_temp_tag}"
-        echo ""
-        pI "if want remove full just use"
-        echo "(while :; do echo 'y'; sleep 3; done) | docker image prune"
-        echo ""
-    ;;
-    *)
-        echo "-> out of time or unknow command remove image prune"
-        pI "remove image you can try as"
-        echo "docker rmi -f ${docker_temp_name}:${docker_temp_tag}"
-        echo ""
-        pI "if want remove full just use"
-        echo "(while :; do echo 'y'; sleep 3; done) | docker image prune"
-        echo ""
-    ;;
-esac
-echo "=> must check out build images !"
+networks:
+  default:
+#volumes:
+#  web-data:
+services:
+  ${build_root_name}:
+    container_name: \"\${ROOT_NAME}\"
+    image: '\${ROOT_NAME}:\${DIST_TAG}' # see local docker file
+    ports:
+      - \"39000:\${ENV_CRON_PORT}\"
+    volumes:
+      - \"\$PWD:/usr/src/myapp\"
+    environment:
+      - ENV_CRON_HTTPS_ENABLE=false
+      - ENV_CRON_AUTO_HOST=false
+      - ENV_CRON_HOST=\${ENV_CRON_HOST}:\${ENV_CRON_PORT}
+#      - ENV_CRON_HOST=0.0.0.0:39000
+    working_dir: \"/usr/src/myapp\"
+    entrypoint:
+      - ./${build_docker_image_tag_mk_out}
+      - -c
+      - conf/config.yaml
+" > ${build_root_path}docker-compose.yml
 
 exit 0
-
-# let Dockerfile be default
-echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
-# VERSION ${build_version}
-# Author: ${USER}
-# dockerfile offical document https://docs.docker.com/engine/reference/builder/
-# https://hub.docker.com/_/golang?tab=description
-FROM ${build_go_image}
-
-COPY $PWD /usr/src/myapp
-WORKDIR /usr/src/myapp
-RUN make initDockerDevImages
-
-#ENTRYPOINT [ \"go\", \"env\" ]
-" > Dockerfile
