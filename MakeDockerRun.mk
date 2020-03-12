@@ -10,6 +10,8 @@ ROOT_DOCKER_IMAGE_PARENT_TAG ?= 1.13.3-stretch
 ROOT_DOCKER_IMAGE_NAME ?= $(ROOT_NAME)
 # can change as local set or read Makefile DIST_VERSION
 ROOT_DOCKER_IMAGE_TAG ?= $(DIST_VERSION)
+ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine
+ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= cron
 
 # For Docker dev images init task
 initDockerDevImages:
@@ -18,13 +20,15 @@ initDockerDevImages:
 	go version
 	@echo "-> check env golang"
 	go env
-	@echo "-> install swag"
-	GOPROXY="$(ENV_GO_PROXY)" go get -u github.com/swaggo/swag/cmd/swag
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor
 
 dockerLocalImageInit:
-	docker build --tag $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) .
+	#docker build --tag $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) .
+	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
+
+dockerLocalImageBuild: initDockerDevImages
+	GOPROXY="$(ENV_GO_PROXY)" go build -a -installsuffix cgo -ldflags '-w' -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) ./*.go
 
 dockerLocalImageRebuild:
 	-docker image rm $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
