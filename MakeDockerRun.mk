@@ -8,8 +8,8 @@ ROOT_DOCKER_IMAGE_PARENT_NAME ?= golang
 ROOT_DOCKER_IMAGE_PARENT_TAG ?= 1.13.3-stretch
 # change this for dockerRunLinux or dockerRunDarwin
 ROOT_DOCKER_IMAGE_NAME ?= $(ROOT_NAME)
-# can change as local set or read Makefile DIST_VERSION
-ROOT_DOCKER_IMAGE_TAG ?= $(DIST_VERSION)
+# can change as local set or read Makefile ENV_DIST_VERSION
+ROOT_DOCKER_IMAGE_TAG ?= $(ENV_DIST_VERSION)
 ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine
 ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= cron
 
@@ -23,12 +23,14 @@ initDockerDevImages:
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor
 
-dockerLocalImageInit:
-	#docker build --tag $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) .
+dockerLocalFileInit:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
 dockerLocalImageBuild: initDockerDevImages
-	GOPROXY="$(ENV_GO_PROXY)" go build -a -installsuffix cgo -ldflags '-w' -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) ./*.go
+	GOPROXY="$(ENV_GO_PROXY)" go build -a -installsuffix cgo -ldflags '-w' -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
+
+dockerLocalFileRest:
+	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash rest-build-tag.sh
 
 dockerLocalImageRebuild:
 	-docker image rm $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
@@ -107,14 +109,15 @@ dockerPrune: dockerStop
 
 helpDockerRun:
 	@echo "Help: MakeDockerRun.mk"
-	@echo "Before run this project in docker must use"
-	@echo "~> make dockerLocalImageInit to init Docker image"
-	@echo "or use"
+	@echo "you can use dockerLocalFileInit build less raw image"
+	@echo "~> make dockerLocalFileInit to init Docker image file need"
+	@echo "~> make dockerLocalFileRest to reset Docker image file"
+	@echo "Before run this project in docker must or can not find docker image"
 	@echo "~> make dockerLocalImageRebuild to rebuild Docker image"
-	@echo "After build Docker image success"
-	@echo "~> make dockerRunLinux  - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(DIST_VERSION) \
+	@echo "After build Docker image build success"
+	@echo "~> make dockerRunLinux  - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(ENV_DIST_VERSION) \
 	container-name at $(ROOT_DOCKER_CONTAINER_NAME) in dockerRunLinux"
-	@echo "~> make dockerRunDarwin - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(DIST_VERSION) \
+	@echo "~> make dockerRunDarwin - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(ENV_DIST_VERSION) \
 	container-name at $(ROOT_DOCKER_CONTAINER_NAME) in macOS"
 	@echo "~> make dockerStop      - stop docker-compose container-name at $(ROOT_DOCKER_CONTAINER_NAME)"
 	@echo "~> make dockerPrune     - stop docker-compose container-name at $(ROOT_DOCKER_CONTAINER_NAME) and try to remove"

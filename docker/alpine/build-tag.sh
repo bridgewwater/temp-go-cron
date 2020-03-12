@@ -137,64 +137,12 @@ FROM alpine:${build_os_version}
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add ca-certificates && \\
     rm -rf /var/cache/apk/* /tmp/*
-COPY --from=builder /${build_docker_image_tag_mk_out} .
+COPY --from=builder /${build_docker_image_tag_mk_out} /usr/src/myapp/
+COPY --from=builder /conf/release/config.yaml /usr/src/myapp/conf/
 ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
-" > Dockerfile
+" > ${build_root_path}Dockerfile
 
 exit 0
-
-# build local docker image
-#GOPROXY=${go_proxy_url} GO111MODULE=on go mod vendor
-docker build --tag ${docker_temp_name}:${docker_temp_tag} .
-checkFuncBack "docker build --tag ${docker_temp_name}:${docker_temp_tag} ."
-
-# check hub.docker dist folder
-if [[ ! -d ${build_out_path} ]]; then
-    mkdir -p ${build_out_path}
-fi
-
-# start dist hub.docker
-# Dockerfile
-echo -e "# This dockerfile uses extends image https://hub.docker.com/_/alpine
-# VERSION 1
-# Author: sinlov
-# dockerfile offical document https://docs.docker.com/engine/reference/builder/
-FROM alpine:3.10
-WORKDIR /
-
-COPY cron /
-RUN apk --no-cache add ca-certificates && \\
-  rm -rf /var/cache/apk/* /tmp/*
-
-ENTRYPOINT [ \"/cron\" ]
-" > ${build_out_path}/Dockerfile
-
-pI "new tag ${build_version} Dockfile as =="
-cat ${build_out_path}/Dockerfile
-
-# README.md
-echo -e "# What is go-cron-cli
-
-- docker hub see https://hub.docker.com/r/sinlov/go-cron-cli
-- this is fast way to run https://github.com/cron/cron cli under cron
-
-# fast use
-
-\`\`\`sh
-docker run --rm \\
-  --name cron-alpine \\
-  -it sinlov/go-cron-cli:${build_version} \\
-  --help
-\`\`\`
-
-# use
-
-- version ${build_version}
-
-\`\`\`sh
-/usr/local/bin/cron
-\`\`\`
-" > ${build_out_path}/README.md
 
 dockerRemoveContainSafe ${docker_temp_contain}
 
