@@ -3,7 +3,7 @@
 build_version=v1.11.1
 build_os=alpine
 build_os_version=3.10
-build_go_image=golang:1.13-alpine
+build_go_image=golang:1.13.3-alpine
 build_docker_image_tag_mk_out=cron
 
 build_root_path=../../

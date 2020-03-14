@@ -100,6 +100,15 @@ dockerStop:
 	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	docker-compose stop
 
+dockerContainRemove:
+	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
+	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	docker-compose rm -f
+
+dockerBuildRemove: dockerStop dockerContainRemove dockerLocalImageRemove
+	@echo "please check docker contain or images status"
+
 dockerPrune: dockerStop
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
