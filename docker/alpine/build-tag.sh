@@ -5,8 +5,8 @@ build_docker_image_name=golang
 build_docker_tag=1.13.3-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 
-build_docker_image_name=golang
-build_docker_image_tag=1.13.3-alpine
+build_docker_image_name=alpine
+build_docker_image_tag=3.10
 build_docker_image_set=${build_docker_image_name}:${build_docker_image_tag}
 build_docker_image_mk_out_path=build
 build_docker_image_mk_out_bin=go-cron-bin
@@ -129,12 +129,12 @@ COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
 RUN make initDockerImagesMod dockerLocalImageBuildFile
 
-#FROM ${build_docker_image_set}
-#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-#RUN apk --no-cache add ca-certificates && \\
-#    rm -rf /var/cache/apk/* /tmp/*
-#COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
-#COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
+FROM ${build_docker_image_set}
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk --no-cache add ca-certificates && \\
+    rm -rf /var/cache/apk/* /tmp/*
+COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
+COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
 
 WORKDIR /usr/src/myapp
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
