@@ -14,7 +14,7 @@ ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine
 ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= cron
 
 # For Docker dev images init task
-initDockerDevImages:
+initDockerImagesMod:
 	@echo "~> start init this project in docker"
 	@echo "-> check version"
 	go version
@@ -26,7 +26,7 @@ initDockerDevImages:
 dockerLocalFileInit:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
-dockerLocalImageBuildFile: initDockerDevImages
+dockerLocalImageBuildFile: initDockerImagesMod
 	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
 
 dockerLocalFileRest:

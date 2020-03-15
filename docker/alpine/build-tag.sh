@@ -119,7 +119,7 @@ checkBinary docker
 
 
 # replace build Dockerfile
-echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_os}
+echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
 # VERSION ${build_version}
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
@@ -128,7 +128,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add make git gcc libtool musl-dev
 WORKDIR /
 COPY . /
-RUN make dockerLocalImageBuildFile
+RUN make initDockerImagesMod dockerLocalImageBuildFile
 
 FROM ${build_docker_image_set}
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories

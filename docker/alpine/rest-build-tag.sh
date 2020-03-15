@@ -6,6 +6,8 @@ build_docker_tag=1.13.3-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 build_root_path=../../
 
+build_root_name=temp-go-cron
+
 run_path=$(pwd)
 shell_run_name=$(basename $0)
 shell_run_path=$(cd `dirname $0`; pwd)
@@ -117,8 +119,9 @@ RUN apk --no-cache add make git gcc libtool musl-dev
 
 COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
-RUN make initDockerDevImages
+RUN make initDockerImagesMod
 
+ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 #ENTRYPOINT [ \"go\", \"env\" ]
 " > ${build_root_path}Dockerfile
 
@@ -132,7 +135,7 @@ networks:
 #volumes:
 #  web-data:
 services:
-  temp-go-cron:
+  ${build_root_name}:
     container_name: \"\${ROOT_NAME}\"
     image: '\${ROOT_NAME}:\${DIST_TAG}' # see local docker file
     ports:
@@ -145,7 +148,9 @@ services:
       - ENV_CRON_HOST=\${ENV_CRON_HOST}:\${ENV_CRON_PORT}
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: \"/usr/src/myapp\"
-    command: [\"make\", \"dev\"]
+    command:
+      - make
+      - dev
 " > ${build_root_path}docker-compose.yml
 
 exit 0
