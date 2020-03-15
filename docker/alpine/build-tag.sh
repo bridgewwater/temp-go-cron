@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 
 build_version=v1.11.1
-build_os=alpine
-build_os_version=3.10
-build_go_image=golang:1.13.3-alpine
-build_docker_image_tag_mk_out=cron
+build_docker_image_name=golang
+build_docker_tag=1.13.3-alpine
+build_docker_set=${build_docker_image_name}:${build_docker_tag}
+
+build_docker_image_name=alpine
+build_docker_image_tag=3.10
+build_docker_image_set=${build_docker_image_name}:${build_docker_image_tag}
+build_docker_image_mk_out=cron
 
 build_root_path=../../
 build_root_name=temp-go-cron
@@ -119,18 +123,18 @@ echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_os
 # VERSION ${build_version}
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
-FROM ${build_go_image} as builder
+FROM ${build_docker_set} as builder
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add make git gcc libtool musl-dev
 WORKDIR /
 COPY . /
 RUN make dockerLocalImageBuild
 
-FROM alpine:${build_os_version}
+FROM ${build_docker_image_set}
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add ca-certificates && \\
     rm -rf /var/cache/apk/* /tmp/*
-COPY --from=builder /${build_docker_image_tag_mk_out} /usr/src/myapp/
+COPY --from=builder /${build_docker_image_mk_out} /usr/src/myapp/
 COPY --from=builder /conf/release/config.yaml /usr/src/myapp/conf/
 ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 " > ${build_root_path}Dockerfile
@@ -159,7 +163,7 @@ services:
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: \"/usr/src/myapp\"
     entrypoint:
-      - ./${build_docker_image_tag_mk_out}
+      - ./${build_docker_image_mk_out}
       - -c
       - conf/config.yaml
 " > ${build_root_path}docker-compose.yml

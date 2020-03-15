@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 build_version=v1.11.1
-build_go_image=golang:1.13.3-stretch
+build_docker_image_name=golang
+build_docker_tag=1.13.3-stretch
+build_docker_set=${build_docker_image_name}:${build_docker_tag}
 build_root_path=../../
 
 run_path=$(pwd)
@@ -108,7 +110,7 @@ echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
 # https://hub.docker.com/_/golang?tab=description
-FROM ${build_go_image}
+FROM ${build_docker_set}
 
 COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
