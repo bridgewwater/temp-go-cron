@@ -118,7 +118,6 @@ RUN apk --no-cache add make git gcc libtool musl-dev
 COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
 RUN make initDockerDevImages
-RUN make initDockerDevImages
 
 #ENTRYPOINT [ \"go\", \"env\" ]
 " > ${build_root_path}Dockerfile
