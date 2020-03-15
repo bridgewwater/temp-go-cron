@@ -11,7 +11,7 @@ ROOT_DOCKER_IMAGE_NAME ?= $(ROOT_NAME)
 # can change as local set or read Makefile ENV_DIST_VERSION
 ROOT_DOCKER_IMAGE_TAG ?= $(ENV_DIST_VERSION)
 ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine
-ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= cron
+ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= go-cron-bin
 
 # For Docker dev images init task
 initDockerImagesMod:

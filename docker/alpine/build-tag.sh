@@ -5,17 +5,18 @@ build_docker_image_name=golang
 build_docker_tag=1.13.3-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 
-build_docker_image_name=alpine
-build_docker_image_tag=3.10
+build_docker_image_name=golang
+build_docker_image_tag=1.13.3-alpine
 build_docker_image_set=${build_docker_image_name}:${build_docker_image_tag}
-build_docker_image_mk_out=cron
+build_docker_image_mk_out_path=build
+build_docker_image_mk_out_bin=go-cron-bin
 
 build_root_path=../../
 build_root_name=temp-go-cron
 
+docker_none_mark=none
 go_proxy_url=https://goproxy.cn/
-build_root_docker_image_name=${build_root_name}
-build_root_docker_image_tag=${build_version}
+
 
 
 run_path=$(pwd)
@@ -116,8 +117,6 @@ dockerRemoveContainSafe(){
 # checkenv
 checkBinary docker
 
-
-
 # replace build Dockerfile
 echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
 # VERSION ${build_version}
@@ -126,17 +125,19 @@ echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_do
 FROM ${build_docker_set} as builder
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add make git gcc libtool musl-dev
-WORKDIR /
-COPY . /
+COPY \$PWD /usr/src/myapp
+WORKDIR /usr/src/myapp
 RUN make initDockerImagesMod dockerLocalImageBuildFile
 
-FROM ${build_docker_image_set}
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-RUN apk --no-cache add ca-certificates && \\
-    rm -rf /var/cache/apk/* /tmp/*
-COPY --from=builder /${build_docker_image_mk_out} /usr/src/myapp/
-COPY --from=builder /conf/release/config.yaml /usr/src/myapp/conf/
-ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
+#FROM ${build_docker_image_set}
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+#RUN apk --no-cache add ca-certificates && \\
+#    rm -rf /var/cache/apk/* /tmp/*
+#COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
+#COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
+
+WORKDIR /usr/src/myapp
+CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 " > ${build_root_path}Dockerfile
 
 echo -e "# copy right
@@ -155,17 +156,20 @@ services:
     ports:
       - \"39000:\${ENV_CRON_PORT}\"
     volumes:
-      - \"\$PWD:/usr/src/myapp\"
+      - \"\$PWD/log:/usr/src/myapp/log\"
     environment:
       - ENV_CRON_HTTPS_ENABLE=false
       - ENV_CRON_AUTO_HOST=false
       - ENV_CRON_HOST=\${ENV_CRON_HOST}:\${ENV_CRON_PORT}
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: \"/usr/src/myapp\"
-    entrypoint:
-      - ./${build_docker_image_mk_out}
+    command:
+      - ./${build_docker_image_mk_out_bin}
       - -c
       - conf/config.yaml
 " > ${build_root_path}docker-compose.yml
+
+# for remove docker images which no tag mark by <none>
+docker images | grep ${docker_none_mark} | awk '{print $3}' | xargs docker rmi
 
 exit 0
