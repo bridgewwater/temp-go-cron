@@ -71,7 +71,7 @@ localIPDarwin:
 	@echo "local ip address is: $(ROOT_LOCAL_IP_V4_DARWIN)"
 
 dockerRunDarwin: localIPDarwin
-	docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
+	-docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
 	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_DARWIN) \
 	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \

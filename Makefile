@@ -120,7 +120,8 @@ runTest: buildMain
 
 distTest: buildMain checkTestDistPath
 	mv ./build/main $(ROOT_TEST_DIST_PATH)
-	cp ./conf/test/config.yaml $(ROOT_TEST_DIST_PATH)
+	mkdir $(ROOT_TEST_DIST_PATH)/conf/
+	cp ./conf/test/config.yaml $(ROOT_TEST_DIST_PATH)/conf/
 	@echo "=> pkg at: $(ROOT_TEST_DIST_PATH)"
 
 tarDistTest: distTest
@@ -129,18 +130,21 @@ tarDistTest: distTest
 distTestOS: buildARCH checkTestOSDistPath
 	@echo "=> Test at: $(ENV_DIST_OS) ARCH as: $(ENV_DIST_ARCH)"
 	mv ./build/main $(ROOT_TEST_OS_DIST_PATH)
-	cp ./conf/test/config.yaml $(ROOT_TEST_OS_DIST_PATH)
+	mkdir $(ROOT_TEST_OS_DIST_PATH)/conf/
+	cp ./conf/test/config.yaml $(ROOT_TEST_OS_DIST_PATH)/conf/
 	@echo "=> pkg at: $(ROOT_TEST_OS_DIST_PATH)"
 
 distRelease: buildMain checkReleaseDistPath
 	mv ./build/main $(ROOT_REPO_DIST_PATH)
-	cp ./conf/release/config.yaml $(ROOT_REPO_DIST_PATH)
+	mkdir $(ROOT_REPO_DIST_PATH)/conf/
+	cp ./conf/release/config.yaml $(ROOT_REPO_DIST_PATH)/conf/
 	@echo "=> pkg at: $(ROOT_REPO_DIST_PATH)"
 
 distReleaseOS: buildARCH checkReleaseOSDistPath
 	@echo "=> Release at: $(ENV_DIST_OS) ARCH as: $(ENV_DIST_ARCH)"
 	mv ./build/main $(ROOT_REPO_OS_DIST_PATH)
-	cp ./conf/release/config.yaml $(ROOT_REPO_OS_DIST_PATH)
+	mkdir $(ROOT_REPO_OS_DIST_PATH)/conf/
+	cp ./conf/release/config.yaml $(ROOT_REPO_OS_DIST_PATH)/conf/
 	@echo "=> pkg at: $(ROOT_REPO_OS_DIST_PATH)"
 
 tarDistReleaseOS: distReleaseOS

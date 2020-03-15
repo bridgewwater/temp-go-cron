@@ -14,11 +14,14 @@ services:
     ports:
       - "39000:39000"
     volumes:
-      - "./dist/linux/test/1.0.0/:/usr/src/myapp"
+      - "./dist/linux/test/v1.0.0/:/usr/src/myapp"
       - "./log:/usr/src/myapp/log"
     environment:
       - ENV_CRON_HTTPS_ENABLE=false
       - ENV_AUTO_HOST=false
     #      - ENV_CRON_HOST=0.0.0.0:38080
     working_dir: "/usr/src/myapp"
-    command: ["./main", "-c", "./config.yaml"]
+    command:
+      - "./main"
+      - "-c"
+      - "./config.yaml"
