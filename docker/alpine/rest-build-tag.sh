@@ -2,7 +2,7 @@
 
 build_version=v1.11.1
 build_docker_image_name=golang
-build_docker_tag=1.13.3-stretch
+build_docker_tag=1.13.3-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 build_root_path=../../
 
@@ -112,8 +112,12 @@ echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
 # https://hub.docker.com/_/golang?tab=description
 FROM ${build_docker_set}
 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk --no-cache add make git gcc libtool musl-dev
+
 COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
+RUN make initDockerDevImages
 RUN make initDockerDevImages
 
 #ENTRYPOINT [ \"go\", \"env\" ]

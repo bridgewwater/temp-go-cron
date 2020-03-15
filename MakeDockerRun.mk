@@ -26,7 +26,7 @@ initDockerDevImages:
 dockerLocalFileInit:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
-dockerLocalImageBuild: initDockerDevImages
+dockerLocalImageBuildFile: initDockerDevImages
 	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
 
 dockerLocalFileRest:
@@ -107,7 +107,7 @@ dockerContainRemove:
 	docker-compose rm -f
 
 dockerBuildRemove: dockerStop dockerContainRemove dockerLocalImageRemove
-	@echo "please check docker contain or images status"
+	@echo "=> after build remove, please check docker contain or images status to confirm."
 
 dockerPrune: dockerStop
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \

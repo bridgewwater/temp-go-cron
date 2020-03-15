@@ -128,7 +128,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk --no-cache add make git gcc libtool musl-dev
 WORKDIR /
 COPY . /
-RUN make dockerLocalImageBuild
+RUN make dockerLocalImageBuildFile
 
 FROM ${build_docker_image_set}
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
