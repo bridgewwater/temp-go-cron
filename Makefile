@@ -69,31 +69,50 @@ init:
 	@echo "~> you can use [ make help ] see more task"
 
 cleanBuild:
-	@if [ -d ${ROOT_BUILD_PATH} ]; then rm -rf ${ROOT_BUILD_PATH} && echo "~> cleaned ${ROOT_BUILD_PATH}"; else echo "~> has cleaned ${ROOT_BUILD_PATH}"; fi
+	@if [ -d ${ROOT_BUILD_PATH} ]; \
+	then rm -rf ${ROOT_BUILD_PATH} && echo "~> cleaned ${ROOT_BUILD_PATH}"; \
+	else echo "~> has cleaned ${ROOT_BUILD_PATH}"; \
+	fi
 
 cleanDist:
-	@if [ -d ${ROOT_DIST} ]; then rm -rf ${ROOT_DIST} && echo "~> cleaned ${ROOT_DIST}"; else echo "~> has cleaned ${ROOT_DIST}"; fi
+	@if [ -d ${ROOT_DIST} ]; \
+	then rm -rf ${ROOT_DIST} && echo "~> cleaned ${ROOT_DIST}"; \
+	else echo "~> has cleaned ${ROOT_DIST}"; \
+	fi
 
 cleanLog:
-	@if [ -d ${ROOT_LOG_PATH} ]; then rm -rf ${ROOT_LOG_PATH} && echo "~> cleaned ${ROOT_LOG_PATH}"; else echo "~> has cleaned ${ROOT_LOG_PATH}"; fi
+	@if [ -d ${ROOT_LOG_PATH} ]; \
+	then rm -rf ${ROOT_LOG_PATH} && echo "~> cleaned ${ROOT_LOG_PATH}"; \
+	else echo "~> has cleaned ${ROOT_LOG_PATH}"; \
+	fi
 
 clean: cleanBuild cleanLog
 	@echo "~> clean finish"
 
 checkTestBuildPath:
-	@if [ ! -d ${ROOT_TEST_BUILD_PATH} ]; then mkdir -p ${ROOT_TEST_BUILD_PATH} && echo "~> mkdir ${ROOT_TEST_BUILD_PATH}"; fi
+	@if [ ! -d ${ROOT_TEST_BUILD_PATH} ]; \
+	then mkdir -p ${ROOT_TEST_BUILD_PATH} && echo "~> mkdir ${ROOT_TEST_BUILD_PATH}"; \
+	fi
 
 checkTestDistPath:
-	@if [ ! -d ${ROOT_TEST_DIST_PATH} ]; then mkdir -p ${ROOT_TEST_DIST_PATH} && echo "~> mkdir ${ROOT_TEST_DIST_PATH}"; fi
+	@if [ ! -d ${ROOT_TEST_DIST_PATH} ]; \
+	then mkdir -p ${ROOT_TEST_DIST_PATH} && echo "~> mkdir ${ROOT_TEST_DIST_PATH}"; \
+	fi
 
 checkTestOSDistPath:
-	@if [ ! -d ${ROOT_TEST_OS_DIST_PATH} ]; then mkdir -p ${ROOT_TEST_OS_DIST_PATH} && echo "~> mkdir ${ROOT_TEST_OS_DIST_PATH}"; fi
+	@if [ ! -d ${ROOT_TEST_OS_DIST_PATH} ]; \
+	then mkdir -p ${ROOT_TEST_OS_DIST_PATH} && echo "~> mkdir ${ROOT_TEST_OS_DIST_PATH}"; \
+	fi
 
 checkReleaseDistPath:
-	@if [ ! -d ${ROOT_REPO_DIST_PATH} ]; then mkdir -p ${ROOT_REPO_DIST_PATH} && echo "~> mkdir ${ROOT_REPO_DIST_PATH}"; fi
+	@if [ ! -d ${ROOT_REPO_DIST_PATH} ]; \
+	then mkdir -p ${ROOT_REPO_DIST_PATH} && echo "~> mkdir ${ROOT_REPO_DIST_PATH}"; \
+	fi
 
 checkReleaseOSDistPath:
-	@if [ ! -d ${ROOT_REPO_OS_DIST_PATH} ]; then mkdir -p ${ROOT_REPO_OS_DIST_PATH} && echo "~> mkdir ${ROOT_REPO_OS_DIST_PATH}"; fi
+	@if [ ! -d ${ROOT_REPO_OS_DIST_PATH} ]; \
+	then mkdir -p ${ROOT_REPO_OS_DIST_PATH} && echo "~> mkdir ${ROOT_REPO_OS_DIST_PATH}"; \
+	fi
 
 buildMain: dep
 	@echo "-> start build local OS"
