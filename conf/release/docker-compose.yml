@@ -1,0 +1,27 @@
+# copy right
+# Licenses http://www.apache.org/licenses/LICENSE-2.0
+# more info see https://docs.docker.com/compose/compose-file/ or https://docker.github.io/compose/compose-file/
+version: '3.7'
+
+networks:
+  default:
+#volumes:
+#  web-data:
+services:
+  temp-go-cron:
+    container_name: "temp-go-cron"
+    image: 'temp-go-cron:v1.0.0' # see local docker file
+    ports:
+      - "39000:39000"
+    volumes:
+      - "$PWD/log:/usr/src/myapp/log"
+    environment:
+      - ENV_CRON_HTTPS_ENABLE=false
+      - ENV_CRON_AUTO_HOST=false
+      - ENV_CRON_HOST=0.0.0.0:39000
+    working_dir: "/usr/src/myapp"
+    command:
+      - "./go-cron-bin"
+      - "-c"
+      - "conf/config.yaml"
+

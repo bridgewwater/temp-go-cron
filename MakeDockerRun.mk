@@ -4,14 +4,17 @@
 ROOT_DOCKER_CONTAINER_NAME ?= $(ROOT_NAME)
 ROOT_DOCKER_CONTAINER_PORT ?= 39000
 # change this for docker parent
-ROOT_DOCKER_IMAGE_PARENT_NAME ?= golang
-ROOT_DOCKER_IMAGE_PARENT_TAG ?= 1.13.3-stretch
+ROOT_DOCKER_IMAGE_PARENT_NAME ?= golang # do not change
+ROOT_DOCKER_IMAGE_PARENT_TAG ?= 1.13.8-alpine # see https://hub.docker.com/_/golang must use alpine
+ROOT_BUILD_DOCKER_IMAGE_NAME=alpine # do not change
+ROOT_BUILD_DOCKER_IMAGE_TAG=3.10 # https://hub.docker.com/_/alpine
 # change this for dockerRunLinux or dockerRunDarwin
 ROOT_DOCKER_IMAGE_NAME ?= $(ROOT_NAME)
 # can change as local set or read Makefile ENV_DIST_VERSION
 ROOT_DOCKER_IMAGE_TAG ?= $(ENV_DIST_VERSION)
-ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine
-ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= go-cron-bin
+ROOT_DOCKER_IMAGE_TAG_MK_OUT ?= go-cron-bin # will change less build out bin name
+
+ROOT_DOCKER_IMAGE_TAG_MK_FOLDER ?= docker/alpine # do not change
 
 # For Docker dev images init task
 initDockerImagesMod:
@@ -28,15 +31,15 @@ initDockerImagesMod:
 dockerLocalFileRest:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && \
 	if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
-	then bash rest-build-tag.sh -p ; \
-	else bash rest-build-tag.sh; \
+	then bash rest-build-tag.sh -p -b $(ENV_DIST_VERSION) -b $(ENV_DIST_VERSION) -n $(ROOT_NAME) -i $(ROOT_DOCKER_IMAGE_PARENT_TAG); \
+	else bash rest-build-tag.sh -b $(ENV_DIST_VERSION) -n $(ROOT_NAME) -i $(ROOT_DOCKER_IMAGE_PARENT_TAG); \
 	fi
 
 dockerLocalFileLess:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && \
 	if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
-	then bash build-tag.sh -p ; \
-	else bash build-tag.sh; \
+	then bash build-tag.sh -p -b $(ENV_DIST_VERSION) -n $(ROOT_NAME) -i $(ROOT_DOCKER_IMAGE_PARENT_TAG) -r $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) -z $(ROOT_BUILD_DOCKER_IMAGE_TAG); \
+	else bash build-tag.sh -b $(ENV_DIST_VERSION) -n $(ROOT_NAME) -i $(ROOT_DOCKER_IMAGE_PARENT_TAG) -r $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) -z $(ROOT_BUILD_DOCKER_IMAGE_TAG); \
 	fi
 
 dockerLocalImageBuildFile: initDockerImagesMod
@@ -146,6 +149,14 @@ dockerLessBuild: dockerBuildRemove dockerLocalFileLess dockerLocalImageRebuild
 dockerLessBuildRun: clean dockerLessBuild dockerRun
 	@echo "=> after less build run please check docker contain or images status to confirm."
 
+dockerLessDist: clean dockerLocalFileLess dockerLocalImageRebuild dockerLocalFileRest checkReleaseOSDistPath
+	@echo "=> check build image [docker image $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) ]"
+	@echo "-> docker image has binary only use docker-compose and config file to use"
+	mkdir $(ROOT_REPO_OS_DIST_PATH)/conf/
+	cp ./conf/release/config.yaml $(ROOT_REPO_OS_DIST_PATH)/conf/
+	cp ./conf/release/docker-compose.yml $(ROOT_REPO_OS_DIST_PATH)
+	@echo "=> pkg at: $(ROOT_REPO_OS_DIST_PATH)"
+
 dockerPrune: dockerStop
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
@@ -163,6 +174,12 @@ helpDockerRun:
 	@echo "Before run this project in docker must or can not find docker image"
 	@echo "~> make dockerLocalImageRebuild to rebuild Docker image"
 	@echo "After build Docker image build success"
+	@echo ""
+	@echo "~> make dockerBuildRun  - clean full build and build run in docker"
+	@echo "~> make dockerLessDist  - clean full build and build docker image wait docker-compose"
+	@echo ""
+	@echo "~> make dockerRun       - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(ENV_DIST_VERSION) \
+	container-name at $(ROOT_DOCKER_CONTAINER_NAME)"
 	@echo "~> make dockerRunLinux  - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(ENV_DIST_VERSION) \
 	container-name at $(ROOT_DOCKER_CONTAINER_NAME) in dockerRunLinux"
 	@echo "~> make dockerRunDarwin - run docker-compose server as $(ROOT_DOCKER_IMAGE_NAME):$(ENV_DIST_VERSION) \

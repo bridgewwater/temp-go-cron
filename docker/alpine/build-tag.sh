@@ -1,145 +1,173 @@
 #!/usr/bin/env bash
 
-
 build_version=v1.11.1
 build_docker_image_name=golang
-build_docker_tag=1.13.8-alpine
+build_docker_os=alpine
+build_docker_tag=1.13.8-${build_docker_os}
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 
-build_docker_image_name=alpine
-build_docker_image_tag=3.10
-build_docker_image_set=${build_docker_image_name}:${build_docker_image_tag}
-build_docker_image_mk_out_path=build
+build_docker_image_set_name=${build_docker_os}
+build_docker_image_set_tag=3.10
+build_docker_image_set=${build_docker_image_set_name}:${build_docker_image_set_tag}
+
 build_docker_image_mk_out_bin=go-cron-bin
+build_docker_image_mk_out_path=build
 
 build_root_path=../../
 build_root_name=temp-go-cron
+buuld_root_conf_path=${build_root_path}/conf/release/
+
 build_need_proxy=0
 go_proxy_url=https://goproxy.cn/
 alpinelinux_proxy=mirrors.aliyun.com
 
 docker_none_mark=none
 
-
-
 run_path=$(pwd)
 shell_run_name=$(basename $0)
-shell_run_path=$(cd `dirname $0`; pwd)
+shell_run_path=$(
+  cd $(dirname $0)
+  pwd
+)
 
-
-pV(){
-    echo -e "\033[;36m$1\033[0m"
+pV() {
+  echo -e "\033[;36m$1\033[0m"
 }
-pI(){
-    echo -e "\033[;32m$1\033[0m"
+pI() {
+  echo -e "\033[;32m$1\033[0m"
 }
-pD(){
-    echo -e "\033[;34m$1\033[0m"
+pD() {
+  echo -e "\033[;34m$1\033[0m"
 }
-pW(){
-    echo -e "\033[;33m$1\033[0m"
+pW() {
+  echo -e "\033[;33m$1\033[0m"
 }
-pE(){
-    echo -e "\033[;31m$1\033[0m"
-}
-
-checkFuncBack(){
-    if [[ $? -ne 0 ]]; then
-        echo -e "\033[;31mRun [ $1 ] error exit code 1\033[0m"
-        exit 1
-    fi
+pE() {
+  echo -e "\033[;31m$1\033[0m"
 }
 
-checkBinary(){
-    binary_checker=`which $1`
-    checkFuncBack "which $1"
-    if [[ ! -n "${binary_checker}" ]]; then
-        echo -e "\033[;31mCheck binary [ $1 ] error exit\033[0m"
-        exit 1
-        #  else
-        #    echo -e "\033[;32mCli [ $1 ] event check success\033[0m\n-> \033[;34m$1 at Path: ${evn_checker}\033[0m"
-    fi
+checkFuncBack() {
+  if [[ $? -ne 0 ]]; then
+    echo -e "\033[;31mRun [ $1 ] error exit code 1\033[0m"
+    exit 1
+  fi
 }
 
-check_root(){
-    if [[ ${EUID} != 0 ]]; then
-        echo "no not root user"
-    fi
+checkBinary() {
+  binary_checker=$(which $1)
+  checkFuncBack "which $1"
+  if [[ ! -n "${binary_checker}" ]]; then
+    echo -e "\033[;31mCheck binary [ $1 ] error exit\033[0m"
+    exit 1
+    #  else
+    #    echo -e "\033[;32mCli [ $1 ] event check success\033[0m\n-> \033[;34m$1 at Path: ${evn_checker}\033[0m"
+  fi
 }
 
-dockerIsHasContainByName(){
-    if [[ ! -n $1 ]]; then
-        pW "Want find contain is empty"
-        echo "-1"
+check_root() {
+  if [[ ${EUID} != 0 ]]; then
+    echo "no not root user"
+  fi
+}
+
+dockerIsHasContainByName() {
+  if [[ ! -n $1 ]]; then
+    pW "Want find contain is empty"
+    echo "-1"
+  else
+    c_status=$(docker inspect $1)
+    if [ ! $? -eq 0 ]; then
+      echo "1"
     else
-        c_status=$(docker inspect $1)
-        if [ ! $? -eq 0 ]; then
-            echo "1"
-        else
-            echo "0"
-        fi
+      echo "0"
     fi
+  fi
 }
 
-dockerStopContainWhenRunning(){
-    if [[ ! -n $1 ]]; then
-        pW "Want stop contain is empty"
-    else
-        c_status=$(docker inspect --format='{{ .State.Status}}' $1)
-        if [ "running" == ${c_status} ]; then
-            pD "-> docker stop contain [ $1 ]"
-            docker stop $1
-            checkFuncBack "docker stop $1"
-        fi
+dockerStopContainWhenRunning() {
+  if [[ ! -n $1 ]]; then
+    pW "Want stop contain is empty"
+  else
+    c_status=$(docker inspect --format='{{ .State.Status}}' $1)
+    if [ "running" == ${c_status} ]; then
+      pD "-> docker stop contain [ $1 ]"
+      docker stop $1
+      checkFuncBack "docker stop $1"
     fi
+  fi
 }
 
-dockerRemoveContainSafe(){
-    if [[ ! -n $1 ]]; then
-        pW "Want remove contain is empty"
+dockerRemoveContainSafe() {
+  if [[ ! -n $1 ]]; then
+    pW "Want remove contain is empty"
+  else
+    has_contain=$(dockerIsHasContainByName $1)
+    if [[ ${has_contain} -eq 0 ]]; then
+      dockerStopContainWhenRunning $1
+      c_status=$(docker inspect --format='{{ .State.Status}}' $1)
+      if [ "exited" == ${c_status} ]; then
+        pD "-> docker rm contain [ $1 ]"
+        docker rm $1
+        checkFuncBack "docker rm $1"
+      fi
+      if [ "created" == ${c_status} ]; then
+        pD "-> docker rm contain [ $1 ]"
+        docker rm $1
+        checkFuncBack "docker rm $1"
+      fi
     else
-        has_contain=$(dockerIsHasContainByName $1)
-        if [ ${has_contain} -eq 0 ];then
-            dockerStopContainWhenRunning $1
-            c_status=$(docker inspect --format='{{ .State.Status}}' $1)
-            if [ "exited" == ${c_status} ]; then
-                pD "-> docker rm contain [ $1 ]"
-                docker rm $1
-                checkFuncBack "docker rm $1"
-            fi
-            if [ "created" ==  ${c_status} ]; then
-                pD "-> docker rm contain [ $1 ]"
-                docker rm $1
-                checkFuncBack "docker rm $1"
-            fi
-        else
-            pE "dockerRemoveContainSafe Not found contain [ $1 ]"
-        fi
+      pE "dockerRemoveContainSafe Not found contain [ $1 ]"
     fi
+  fi
 }
 
 # checkenv
 checkBinary docker
 
-while getopts "p" arg #after param has ":" need option
-do
-    case $arg in
-        p ) # -p proxy of build
-            build_need_proxy=1
-        ;;
-#        t ) # -t [Demo] tag of contains default is Demo, will change contain name, can empty
-#            new_module_tag=${OPTARG}
-#        ;;
-        ? )  # other param?
-            echo "unkonw argument, plase use -h to show help"
-            exit 1
-        ;;
-    esac
+while getopts "hpb:n:i:r:z:" arg; do #after param has ":" need option
+  case $arg in
+  p) # -p open proxy of build
+    build_need_proxy=1
+    ;;
+  b) # -b [v1.0.0] build version of contains
+    build_version=${OPTARG}
+    ;;
+  n) # -n [temp-go-cron] name of build
+    build_root_name=${OPTARG}
+    ;;
+  i) # -i [1.13.8-alpine] build docker image tag of golang https://hub.docker.com/_/golang
+    build_docker_tag=${OPTARG}
+    build_docker_set=${build_docker_image_name}:${build_docker_tag}
+    ;;
+  r) # -r [go-cron-bin] raw name of build
+    build_docker_image_mk_out_bin=${OPTARG}
+    ;;
+  z) # -z [3.10] build docker image alpine tag https://hub.docker.com/_/alpine
+    build_docker_image_set_tag=${OPTARG}
+    build_docker_image_set=${build_docker_image_set_name}:${build_docker_image_set_tag}
+    ;;
+  h)
+    echo -e "this script to mark docker build file
+    use as ${shell_run_name} -p
+ars:
+  -p open proxy of build
+  -b [v1.0.0] build version of contains
+  -n [temp-go-cron] name of build
+  -i [1.13.8-alpine] build docker image tag of golang https://hub.docker.com/_/golang
+  -r [go-cron-bin] raw name of build
+  -z [3.10] build docker image alpine tag https://hub.docker.com/_/alpine
+"
+    ;;
+  ?) # other param?
+    echo "unkonw argument, plase use -h to show help"
+    exit 1
+    ;;
+  esac
 done
 
 if [[ ${build_need_proxy} -eq 1 ]]; then
-# replace build Dockerfile
-echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
+  # replace build Dockerfile
+  echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
 # VERSION ${build_version}
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
@@ -159,9 +187,9 @@ COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
 
 WORKDIR /usr/src/myapp
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
-" > ${build_root_path}Dockerfile
+" >${build_root_path}Dockerfile
 else
-# replace build Dockerfile
+  # replace build Dockerfile
   echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
 # VERSION ${build_version}
 # Author: ${USER}
@@ -180,7 +208,7 @@ COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
 
 WORKDIR /usr/src/myapp
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
-" > ${build_root_path}Dockerfile
+" >${build_root_path}Dockerfile
 
 fi
 
@@ -211,7 +239,35 @@ services:
       - \"./${build_docker_image_mk_out_bin}\"
       - \"-c\"
       - \"conf/config.yaml\"
-" > ${build_root_path}docker-compose.yml
+" >${build_root_path}docker-compose.yml
+
+echo -e "# copy right
+# Licenses http://www.apache.org/licenses/LICENSE-2.0
+# more info see https://docs.docker.com/compose/compose-file/ or https://docker.github.io/compose/compose-file/
+version: '3.7'
+
+networks:
+  default:
+#volumes:
+#  web-data:
+services:
+  ${build_root_name}:
+    container_name: \"${build_root_name}\"
+    image: '${build_root_name}:${build_version}' # see local docker file
+    ports:
+      - \"39000:39000\"
+    volumes:
+      - \"\$PWD/log:/usr/src/myapp/log\"
+    environment:
+      - ENV_CRON_HTTPS_ENABLE=false
+      - ENV_CRON_AUTO_HOST=false
+      - ENV_CRON_HOST=0.0.0.0:39000
+    working_dir: \"/usr/src/myapp\"
+    command:
+      - \"./${build_docker_image_mk_out_bin}\"
+      - \"-c\"
+      - \"conf/config.yaml\"
+" >${buuld_root_conf_path}docker-compose.yml
 
 # for remove docker images which no tag mark by <none>
 docker images | grep ${docker_none_mark} | awk '{print $3}' | xargs docker rmi

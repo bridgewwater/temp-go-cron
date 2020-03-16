@@ -7,8 +7,11 @@
 
 - `need go mod to management golang dependenceis`
 
+> change [Makefile](Makefile) `ENV_NEED_PROXY=1` to open proxy
+
 ```sh
 $ make help
+
 # check base dep
 $ make init
 # first run just use dep to get dep
@@ -23,7 +26,7 @@ $ make dev
 # docker code run use
 $ make dockerLocalFileRest dockerBuildRun
 # docker binary run
-$ make dockerLocalFileLess dockerBuildRun
+$ make dockerLocalFileLess dockerLessBuild dockerLessBuildRun
 ```
 
 most of doc at [http://127.0.0.1:39000/swagger/index.html](http://127.0.0.1:39000/swagger/index.html)

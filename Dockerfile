@@ -1,5 +1,5 @@
 # This dockerfile uses extends image https://hub.docker.com/_/golang
-# VERSION v1.11.1
+# VERSION v1.0.0
 # Author: sinlov
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
 # https://hub.docker.com/_/golang?tab=description
