@@ -27,7 +27,8 @@ dockerLocalFileLess:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
 dockerLocalImageBuildFile: initDockerImagesMod
-	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
+	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -tags netgo -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
+	#GOPROXY="$(ENV_GO_PROXY)" go build -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
 
 dockerLocalFileRest:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash rest-build-tag.sh
