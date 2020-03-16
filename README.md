@@ -88,5 +88,57 @@ $ temp-go-cron -h
 ## folder-Def
 
 ```
-
+.
+├── Dockerfile # will change by make dockerLocalFileRest or make dockerLocalFileLess
+├── LIB.md
+├── LICENCE
+├── MakeDockerRun.mk
+├── MakeGoMod.mk
+├── Makefile
+├── README.md
+├── conf    # conf file folder 
+│   ├── config.yaml
+│   ├── release # realse use docker build use to
+│   │   ├── config.yaml
+│   │   └── docker-compose.yml # will change by make dockerLocalFileLess
+│   └── test # test use
+│       ├── config.yaml
+│       └── docker-compose.yml
+├── config  # golang pkg for project config log at here
+│   ├── baseConf.go
+│   ├── config.go
+│   ├── logConf.go
+│   └── watchConf.go
+├── doc # doc folder
+│   ├── README.md
+│   ├── monitor.md
+│   ├── supervisor.md
+│   └── systemctl.md
+├── docker
+│   └── alpine # apline build helper script
+│       ├── build-tag.sh
+│       └── rest-build-tag.sh
+├── docker-compose.yml  # will change by make dockerLocalFileRest or make dockerLocalFileLess
+├── go.mod
+├── go.sum
+├── log # dev log folder
+├── main.go # enter of project
+├── model # golang pkg model templete
+│   ├── biz
+│   │   └── biz.go
+│   ├── dbMongoOffical.md
+│   ├── dbRedis.md
+│   └── response.go
+├── pkg # golang pkg
+├── tasks # golang pkg tasks for cron
+│   ├── biz # task group biz
+│   │   └── printlog.go
+│   └── dispatch.go # dispatch of cron
+├── temp-golang-cron # script shell for fast build project
+└── util # golang pkg util
+    ├── folder
+    │   └── path.go
+    └── sys
+        ├── network.go
+        └── network_test.go
 ```
