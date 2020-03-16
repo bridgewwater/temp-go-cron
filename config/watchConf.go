@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/fsnotify/fsnotify"
-	"github.com/sinlovgo/log"
 	"github.com/spf13/viper"
 )
 
@@ -10,6 +9,6 @@ import (
 func (c *Config) watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Debugf("Config file changed: %s", e.Name)
+		Sugar().Debugf("Config file changed: %s", e.Name)
 	})
 }

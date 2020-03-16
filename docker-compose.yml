@@ -14,7 +14,7 @@ services:
     ports:
       - "39000:${ENV_CRON_PORT}"
     volumes:
-      - "$PWD:/usr/src/myapp"
+      - "$PWD/log:/usr/src/myapp/log"
     environment:
       - ENV_CRON_HTTPS_ENABLE=false
       - ENV_CRON_AUTO_HOST=false
@@ -22,6 +22,7 @@ services:
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: "/usr/src/myapp"
     command:
-      - make
-      - dev
+      - ./go-cron-bin
+      - -c
+      - conf/config.yaml
 

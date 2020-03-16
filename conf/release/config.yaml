@@ -8,6 +8,28 @@ test_url: http://127.0.0.1:39000   # test url full ip:port
 dev_url: http://127.0.0.1:39000     # dev url full ip:port
 sslEnable: false                    # isEnable ssl mode this will cover by env ENV_CRON_HTTPS_ENABLE
 
+zap:
+  AtomicLevel: -1 # DebugLevel:-1 InfoLevel:0 WarnLevel:1 ErrorLevel:2
+  Fields:
+    Key: key
+    Val: val
+  Development: true # is open Open file and line number
+  AddCaller: true # is open Development mode, stack trace
+  Encoding: console # output format console or json
+  rotate:
+    Filename: log/go-cron.log # Log file path
+    MaxSize: 128 # Maximum size of each log file Unit: M
+    MaxBackups: 30 # How many backups are saved in the log file
+    MaxAge: 365 # How many days can the file be keep
+    Compress: true # need compress ?
+  EncoderConfig:
+    TimeKey: time
+    LevelKey: level
+    NameKey: logger
+    CallerKey: caller
+    MessageKey: msg
+    StacktraceKey: stacktrace
+
 log:
   writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
   logger_level: INFO             # log level: DEBUG, INFO, WARN, ERROR, FATAL

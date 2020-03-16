@@ -23,7 +23,7 @@ initDockerImagesMod:
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download
 	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor
 
-dockerLocalFileInit:
+dockerLocalFileLess:
 	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
 
 dockerLocalImageBuildFile: initDockerImagesMod
@@ -38,12 +38,24 @@ dockerLocalImageRemove:
 dockerLocalImageRebuild: dockerLocalImageRemove
 	docker build --tag $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG) .
 
+dockerRun:
+	-docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
+	ENV_CRON_HOST=0.0.0.0 \
+	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
+	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
+	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
+	docker-compose up -d
+	-sleep 5
+	@echo "=> container $(ROOT_DOCKER_CONTAINER_NAME) now status"
+	docker inspect --format='{{ .State.Status}}' $(ROOT_DOCKER_CONTAINER_NAME)
+	@echo "=> see log with: docker logs $(ROOT_DOCKER_CONTAINER_NAME) -f"
+
 localIPLinux:
 	@echo "=> now run as docker with linux"
 	@echo "local ip address is: $(ROOT_LOCAL_IP_V4_LINUX)"
 
 dockerRunLinux: localIPLinux
-	docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
+	-docker image inspect --format='{{ .Created}}' $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
 	ENV_CRON_HOST=$(ROOT_LOCAL_IP_V4_LINUX) \
 	ENV_CRON_PORT=$(ROOT_DOCKER_CONTAINER_PORT) \
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
@@ -109,6 +121,18 @@ dockerContainRemove:
 dockerBuildRemove: dockerStop dockerContainRemove dockerLocalImageRemove
 	@echo "=> after build remove, please check docker contain or images status to confirm."
 
+dockerBuild: dockerBuildRemove dockerLocalFileRest dockerLocalImageRebuild
+	@echo "=> after build please check docker contain or images status to confirm."
+
+dockerBuildRun: clean dockerBuild dockerRun
+	@echo ""
+
+dockerLessBuild: dockerBuildRemove dockerLocalFileLess dockerLocalImageRebuild
+	@echo "=> after less build please check docker contain or images status to confirm."
+
+dockerLessBuildRun: clean dockerLessBuild dockerRun
+	@echo "=> after less build run please check docker contain or images status to confirm."
+
 dockerPrune: dockerStop
 	ROOT_NAME=$(ROOT_DOCKER_IMAGE_NAME) \
 	DIST_TAG=$(ROOT_DOCKER_IMAGE_TAG) \
@@ -120,8 +144,8 @@ dockerPrune: dockerStop
 
 helpDockerRun:
 	@echo "Help: MakeDockerRun.mk"
-	@echo "you can use dockerLocalFileInit build less raw image"
-	@echo "~> make dockerLocalFileInit to init Docker image file need"
+	@echo "you can use dockerLocalFileLess build less raw image"
+	@echo "~> make dockerLocalFileLess to init Docker image file need"
 	@echo "~> make dockerLocalFileRest to reset Docker image file"
 	@echo "Before run this project in docker must or can not find docker image"
 	@echo "~> make dockerLocalImageRebuild to rebuild Docker image"

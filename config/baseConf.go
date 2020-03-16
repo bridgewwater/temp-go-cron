@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 	"github.com/bridgewwater/temp-go-cron/util/sys"
-	"github.com/sinlovgo/log"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"net/url"
 	"strings"
 )
@@ -14,10 +14,16 @@ var baseConf BaseConf
 type BaseConf struct {
 	BaseURL   string
 	SSLEnable bool
+	Log       *zap.Logger
+	Sugar     *zap.SugaredLogger
 }
 
 func BaseURL() string {
 	return baseConf.BaseURL
+}
+
+func Sugar() *zap.SugaredLogger {
+	return baseConf.Sugar
 }
 
 // read default config by conf/config.yaml
@@ -54,7 +60,7 @@ func initBaseConf() {
 		apiBase = uri.String()
 	} else {
 		isAutoHost := viper.GetBool(defaultEnvAutoGetHost)
-		log.Debugf("isAutoHost %v", isAutoHost)
+		Sugar().Debugf("isAutoHost %v", isAutoHost)
 		if isAutoHost {
 			ipv4, err := sys.NetworkLocalIP()
 			if err == nil {
@@ -73,8 +79,8 @@ func initBaseConf() {
 	if ssLEnable {
 		apiBase = strings.Replace(apiBase, "http://", "https://", 1)
 	}
-	log.Debugf("config file uri.Host %v", uri.Host)
-	log.Debugf("apiBase %v", apiBase)
+	Sugar().Debugf("config file uri.Host %v", uri.Host)
+	Sugar().Debugf("apiBase %v", apiBase)
 	baseConf = BaseConf{
 		BaseURL:   apiBase,
 		SSLEnable: ssLEnable,
