@@ -121,7 +121,7 @@ COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
 RUN make initDockerImagesMod
 
-ENTRYPOINT [\"tail\",  \"-f\", \"/etc/alpine-release\"]
+CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 #ENTRYPOINT [ \"go\", \"env\" ]
 " > ${build_root_path}Dockerfile
 
