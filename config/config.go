@@ -67,6 +67,13 @@ func Init(cfg string) error {
 func (c *Config) initConfig() error {
 	if c.Name != "" {
 		viper.SetConfigFile(c.Name) // If a configuration file is specified, the specified configuration file is parsed
+		exists, err := pathExists(c.Name)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("can not found config file at: %v", c.Name)
+		}
 	} else {
 		viper.AddConfigPath(filepath.Join("conf")) // If no configuration file is specified, the default configuration file is conf/config.yaml
 		viper.SetConfigName("config")
@@ -102,4 +109,15 @@ func checkMustHasString() error {
 		}
 	}
 	return nil
+}
+
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

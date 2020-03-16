@@ -78,7 +78,7 @@ func (c *Config) initLog() error {
 		}
 	}
 
-	logZap.Debug("log init success")
+	logZap.Warn("zap log init success")
 	zapLog = zapLogger{
 		Log:   logZap,
 		Sugar: logZap.Sugar(),

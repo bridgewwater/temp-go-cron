@@ -24,4 +24,4 @@ services:
     command:
       - "./main"
       - "-c"
-      - "./config.yaml"
+      - "conf/config.yaml"

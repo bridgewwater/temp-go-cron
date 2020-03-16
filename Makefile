@@ -98,7 +98,7 @@ buildMain: dep
 
 buildARCH: dep
 	@echo "-> start build OS:$(ENV_DIST_OS) ARCH:$(ENV_DIST_ARCH)"
-	@GOOS=$(ENV_DIST_OS) GOARCH=$(ENV_DIST_ARCH) go build -o build/main main.go
+	@GOOS=$(ENV_DIST_OS) GOARCH=$(ENV_DIST_ARCH) go build -tags netgo -o build/main main.go
 
 buildDocker: dep cleanBuild
 	@echo "-> start build OS:$(ENV_DIST_OS_DOCKER) ARCH:$(ENV_DIST_ARCH_DOCKER)"

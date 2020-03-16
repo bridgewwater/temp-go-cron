@@ -2,7 +2,7 @@
 
 build_version=v1.11.1
 build_docker_image_name=golang
-build_docker_tag=1.13.3-alpine
+build_docker_tag=1.13.8-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 
 build_docker_image_name=alpine
@@ -129,12 +129,12 @@ COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
 RUN make initDockerImagesMod dockerLocalImageBuildFile
 
-#FROM ${build_docker_image_set}
-#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-#RUN apk --no-cache add ca-certificates && \\
-#    rm -rf /var/cache/apk/* /tmp/*
-#COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
-#COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
+FROM ${build_docker_image_set}
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk --no-cache add ca-certificates && \\
+    rm -rf /var/cache/apk/* /tmp/*
+COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
+COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
 
 WORKDIR /usr/src/myapp
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
@@ -164,9 +164,9 @@ services:
 #      - ENV_CRON_HOST=0.0.0.0:39000
     working_dir: \"/usr/src/myapp\"
     command:
-      - ./${build_docker_image_mk_out_bin}
-      - -c
-      - conf/config.yaml
+      - \"./${build_docker_image_mk_out_bin}\"
+      - \"-c\"
+      - \"conf/config.yaml\"
 " > ${build_root_path}docker-compose.yml
 
 # for remove docker images which no tag mark by <none>

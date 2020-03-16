@@ -2,7 +2,7 @@
 
 build_version=v1.11.1
 build_docker_image_name=golang
-build_docker_tag=1.13.3-alpine
+build_docker_tag=1.13.8-alpine
 build_docker_set=${build_docker_image_name}:${build_docker_tag}
 build_root_path=../../
 

@@ -9,7 +9,7 @@ dev_url: http://127.0.0.1:39000     # dev url full ip:port
 sslEnable: false                    # isEnable ssl mode this will cover by env ENV_CRON_HTTPS_ENABLE
 
 zap:
-  AtomicLevel: 1 # DebugLevel:-1 InfoLevel:0 WarnLevel:1 ErrorLevel:2
+  AtomicLevel: 0 # DebugLevel:-1 InfoLevel:0 WarnLevel:1 ErrorLevel:2
   FieldsAuto: false # is use auto Fields key set
   Fields:
     Key: key
