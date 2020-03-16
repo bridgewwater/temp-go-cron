@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 build_version=v1.11.1
 build_docker_image_name=golang
 build_docker_tag=1.13.8-alpine
@@ -13,15 +14,18 @@ build_docker_image_mk_out_bin=go-cron-bin
 
 build_root_path=../../
 build_root_name=temp-go-cron
+build_need_proxy=0
+go_proxy_url=https://goproxy.cn/
+alpinelinux_proxy=mirrors.aliyun.com
 
 docker_none_mark=none
-go_proxy_url=https://goproxy.cn/
 
 
 
 run_path=$(pwd)
 shell_run_name=$(basename $0)
 shell_run_path=$(cd `dirname $0`; pwd)
+
 
 pV(){
     echo -e "\033[;36m$1\033[0m"
@@ -117,20 +121,37 @@ dockerRemoveContainSafe(){
 # checkenv
 checkBinary docker
 
+while getopts "p" arg #after param has ":" need option
+do
+    case $arg in
+        p ) # -p proxy of build
+            build_need_proxy=1
+        ;;
+#        t ) # -t [Demo] tag of contains default is Demo, will change contain name, can empty
+#            new_module_tag=${OPTARG}
+#        ;;
+        ? )  # other param?
+            echo "unkonw argument, plase use -h to show help"
+            exit 1
+        ;;
+    esac
+done
+
+if [[ ${build_need_proxy} -eq 1 ]]; then
 # replace build Dockerfile
 echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
 # VERSION ${build_version}
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
 FROM ${build_docker_set} as builder
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN sed -i 's/dl-cdn.alpinelinux.org/${alpinelinux_proxy}/g' /etc/apk/repositories
 RUN apk --no-cache add make git gcc libtool musl-dev
 COPY \$PWD /usr/src/myapp
 WORKDIR /usr/src/myapp
 RUN make initDockerImagesMod dockerLocalImageBuildFile
 
 FROM ${build_docker_image_set}
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN sed -i 's/dl-cdn.alpinelinux.org/${alpinelinux_proxy}/g' /etc/apk/repositories
 RUN apk --no-cache add ca-certificates && \\
     rm -rf /var/cache/apk/* /tmp/*
 COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
@@ -139,6 +160,29 @@ COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
 WORKDIR /usr/src/myapp
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 " > ${build_root_path}Dockerfile
+else
+# replace build Dockerfile
+  echo -e "# This dockerfile uses extends image https://hub.docker.com/_${build_docker_image_name}
+# VERSION ${build_version}
+# Author: ${USER}
+# dockerfile offical document https://docs.docker.com/engine/reference/builder/
+FROM ${build_docker_set} as builder
+RUN apk --no-cache add make git gcc libtool musl-dev
+COPY \$PWD /usr/src/myapp
+WORKDIR /usr/src/myapp
+RUN make initDockerImagesMod dockerLocalImageBuildFile
+
+FROM ${build_docker_image_set}
+RUN apk --no-cache add ca-certificates && \\
+    rm -rf /var/cache/apk/* /tmp/*
+COPY --from=builder /usr/src/myapp/${build_docker_image_mk_out_bin} /usr/src/myapp/
+COPY --from=builder /usr/src/myapp/conf/release/config.yaml /usr/src/myapp/conf/
+
+WORKDIR /usr/src/myapp
+CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
+" > ${build_root_path}Dockerfile
+
+fi
 
 echo -e "# copy right
 # Licenses http://www.apache.org/licenses/LICENSE-2.0

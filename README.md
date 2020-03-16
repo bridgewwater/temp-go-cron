@@ -17,13 +17,13 @@ $ make dep
 
 # run server as dev
 $ make dev
-# run as docker contant
-$ make dockerRunLinux
-# if use macOS
-$ make dockerRunDarwin
-# stop or remove docker
-$ make dockerStop
-$ make dockerRemove
+
+# run in docker
+# has two mod code run and less binary run
+# docker code run use
+$ make dockerLocalFileRest dockerBuildRun
+# docker binary run
+$ make dockerLocalFileLess dockerBuildRun
 ```
 
 most of doc at [http://127.0.0.1:39000/swagger/index.html](http://127.0.0.1:39000/swagger/index.html)
@@ -59,15 +59,27 @@ swag version v1.4.1
 ## log
 
 ```yaml
-log:
-  writers: file,stdout            # file,stdout。`file` will let `logger_file` to file，`stdout` will show at std, most of time use bose
-  logger_level: DEBUG             # log level: DEBUG, INFO, WARN, ERROR, FATAL
-  logger_file: log/cron.log     # log file setting
-  log_format_text: false          # format `false` will format json, `true` will show abs
-  rollingPolicy: size             # rotate policy, can choose as: daily, size. `daily` store as daily，`size` will save as max
-  log_rotate_date: 1              # rotate date, coordinate `rollingPolicy: daily`
-  log_rotate_size: 8              # rotate size，coordinate `rollingPolicy: size`
-  log_backup_count: 7             # backup max count, log system will compress the log file when log reaches rotate set, this set is max file count
+zap:
+  AtomicLevel: -1 # DebugLevel:-1 InfoLevel:0 WarnLevel:1 ErrorLevel:2
+  FieldsAuto: false # is use auto Fields key set
+  Fields:
+    Key: key
+    Val: val
+  Development: true # is open Open file and line number
+  Encoding: console # output format, only use console or json, default is console
+  rotate:
+    Filename: log/go-cron.log # Log file path
+    MaxSize: 16 # Maximum size of each log file, Unit: M
+    MaxBackups: 10 # How many backups are saved in the log file
+    MaxAge: 7 # How many days can the file be keep, Unit: day
+    Compress: true # need compress
+  EncoderConfig:
+    TimeKey: time
+    LevelKey: level
+    NameKey: logger
+    CallerKey: caller
+    MessageKey: msg
+    StacktraceKey: stacktrace
 ```
 
 ## folder-Def

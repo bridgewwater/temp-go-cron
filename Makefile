@@ -6,6 +6,9 @@ TOP_DIR := $(shell pwd)
 # 	@ echo target file not found
 # endif
 
+# need open proxy 1 is need 0 is default
+ENV_NEED_PROXY=1
+
 ENV_DIST_VERSION := v1.0.0
 # linux windows darwin  list as: go tool dist list
 ENV_DIST_OS := linux

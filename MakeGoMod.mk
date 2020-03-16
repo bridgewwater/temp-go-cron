@@ -2,20 +2,31 @@
 
 modVerify:
 	# in GOPATH must use [ GO111MODULE=on go mod ] to use
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod verify
+	-if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod verify; \
+	else GO111MODULE=on go mod verify; \
+	fi
 
 modDownload:
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor
+	-if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download && GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor; \
+	else GO111MODULE=on go mod download && GO111MODULE=on go mod vendor; \
+	fi
 
 modTidy:
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod tidy
+	-if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod tidy; \
+	else GO111MODULE=on go mod tidy; \
+	fi
 
 dep: modVerify modDownload
 	@echo "just check depends info below"
 
 modGraphDependencies:
-	GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod graph
+	-if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod graph; \
+	else GO111MODULE=on go mod graph; \
+	fi
 
 helpGoMod:
 	@echo "Help: MakeGoMod.mk"

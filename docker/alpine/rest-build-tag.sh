@@ -8,6 +8,10 @@ build_root_path=../../
 
 build_root_name=temp-go-cron
 
+build_need_proxy=0
+go_proxy_url=https://goproxy.cn/
+alpinelinux_proxy=mirrors.aliyun.com
+
 run_path=$(pwd)
 shell_run_name=$(basename $0)
 shell_run_path=$(cd `dirname $0`; pwd)
@@ -106,8 +110,25 @@ dockerRemoveContainSafe(){
 # checkenv
 checkBinary docker
 
+while getopts "p" arg #after param has ":" need option
+do
+    case $arg in
+        p ) # -p proxy of build
+            build_need_proxy=1
+        ;;
+#        t ) # -t [Demo] tag of contains default is Demo, will change contain name, can empty
+#            new_module_tag=${OPTARG}
+#        ;;
+        ? )  # other param?
+            echo "unkonw argument, plase use -h to show help"
+            exit 1
+        ;;
+    esac
+done
+
 # let Dockerfile be default
-echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
+if [[ ${build_need_proxy} -eq 1 ]]; then
+  echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
 # VERSION ${build_version}
 # Author: ${USER}
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
@@ -124,6 +145,24 @@ RUN make initDockerImagesMod
 CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
 #ENTRYPOINT [ \"go\", \"env\" ]
 " > ${build_root_path}Dockerfile
+else
+  echo -e "# This dockerfile uses extends image https://hub.docker.com/_/golang
+# VERSION ${build_version}
+# Author: ${USER}
+# dockerfile offical document https://docs.docker.com/engine/reference/builder/
+# https://hub.docker.com/_/golang?tab=description
+FROM ${build_docker_set}
+
+RUN apk --no-cache add make git gcc libtool musl-dev
+
+COPY \$PWD /usr/src/myapp
+WORKDIR /usr/src/myapp
+RUN make initDockerImagesMod
+
+CMD [\"tail\",  \"-f\", \"/etc/alpine-release\"]
+#ENTRYPOINT [ \"go\", \"env\" ]
+" > ${build_root_path}Dockerfile
+fi
 
 echo -e "# copy right
 # Licenses http://www.apache.org/licenses/LICENSE-2.0

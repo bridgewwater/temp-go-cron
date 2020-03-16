@@ -20,18 +20,30 @@ initDockerImagesMod:
 	go version
 	@echo "-> check env golang"
 	go env
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download
-	-GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor
-
-dockerLocalFileLess:
-	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash build-tag.sh
-
-dockerLocalImageBuildFile: initDockerImagesMod
-	GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -tags netgo -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
-	#GOPROXY="$(ENV_GO_PROXY)" go build -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go
+	-if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod download && GOPROXY="$(ENV_GO_PROXY)" GO111MODULE=on go mod vendor; \
+	else GO111MODULE=on go mod download && GO111MODULE=on go mod vendor; \
+	fi
 
 dockerLocalFileRest:
-	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && bash rest-build-tag.sh
+	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && \
+	if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then bash rest-build-tag.sh -p ; \
+	else bash rest-build-tag.sh; \
+	fi
+
+dockerLocalFileLess:
+	cd $(ROOT_DOCKER_IMAGE_TAG_MK_FOLDER) && \
+	if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then bash build-tag.sh -p ; \
+	else bash build-tag.sh; \
+	fi
+
+dockerLocalImageBuildFile: initDockerImagesMod
+	if [[ $(ENV_NEED_PROXY) -eq 1 ]]; \
+	then GOPROXY="$(ENV_GO_PROXY)" CGO_ENABLED=0 go build -tags netgo -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go; \
+	else CGO_ENABLED=0 go build -tags netgo -a -installsuffix cgo -ldflags '-w' -i -o $(ROOT_DOCKER_IMAGE_TAG_MK_OUT) main.go; \
+	fi
 
 dockerLocalImageRemove:
 	-docker image rm -f $(ROOT_DOCKER_IMAGE_NAME):$(ROOT_DOCKER_IMAGE_TAG)
