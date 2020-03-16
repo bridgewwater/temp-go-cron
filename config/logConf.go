@@ -30,8 +30,8 @@ func (c *Config) initLog() error {
 		MessageKey:     viper.GetString("zap.EncoderConfig.MessageKey"),
 		StacktraceKey:  viper.GetString("zap.EncoderConfig.StacktraceKey"),
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder, // lowercase encoder
-		EncodeTime:     zapcore.ISO8601TimeEncoder,    // ISO8601 UTC time
+		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // or LowercaseLevelEncoder lowercase encoder
+		EncodeTime:     zapcore.ISO8601TimeEncoder,       // ISO8601TimeEncoder ISO8601 UTC time
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.FullCallerEncoder, // full path encoder
 	}
