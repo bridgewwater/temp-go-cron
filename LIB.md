@@ -39,6 +39,25 @@ func TestSomething(t *testing.T) {
 }
 ```
 
+# cron
+
+[github.com/robfig/cron](https://github.com/robfig/cron)
+
+```go
+import (
+	"github.com/robfig/cron/v3"
+	"fmt"
+)
+func main() {
+	c := cron.New()
+	heartBitID, err := c.AddFunc("*/1 * * * *", func() {
+		fmt.Printf("code at here to start cron each 1 min! now time: %v\n", time.Now().String())
+	})
+	c.Start()
+	select {}
+}
+```
+
 # depend
 
 ## github.com/bar-counter/monitor

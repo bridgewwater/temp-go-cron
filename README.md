@@ -29,28 +29,18 @@ $ make dockerLocalFileRest dockerBuildRun
 $ make dockerLocalFileLess dockerLessBuild dockerLessBuildRun
 ```
 
-most of doc at [http://127.0.0.1:39000/swagger/index.html](http://127.0.0.1:39000/swagger/index.html)
-
 # dev
 
 > if want auto get local IP for fast develop, you can add evn `ENV_CRON_AUTO_HOST=true`
 
-- each new swagger must rebuild swagger doc by task `make buildSwagger`
-- also use task `make dev` or `make runTest` also run task buildSwagger before.
-- swagger tools use [swag](https://github.com/swaggo/swag)
-```sh
-go get -v -u github.com/swaggo/swag/cmd/swag
-```
-
-- swagger doc see [https://swaggo.github.io/swaggo.io/declarative_comments_format/](https://swaggo.github.io/swaggo.io/declarative_comments_format/)
-- swagger example see [https://github.com/swaggo/swag/blob/master/example/basic/api/api.go](https://github.com/swaggo/swag/blob/master/example/basic/api/api.go)
-
 ## evn
 
 ```bash
-go version go1.11.4 darwin/amd64
-gin version 1.3.0
-swag version v1.4.1
+go version go1.13.x darwin/amd64
+github.com/robfig/cron/v3 v3.0.1
+github.com/spf13/viper v1.6.2
+go.uber.org/zap v1.10.0
+gopkg.in/natefinch/lumberjack.v2 v2.0.0
 ```
 
 # config
@@ -83,6 +73,16 @@ zap:
     CallerKey: caller
     MessageKey: msg
     StacktraceKey: stacktrace
+```
+
+# cli tools to init project fast
+
+```
+$ curl -L --fail https://raw.githubusercontent.com/bridgewwater/temp-go-cron/master/temp-go-cron
+# let temp-go-cron file folder under $PATH
+$ chmod +x temp-go-cron
+# see how to use
+$ temp-go-cron -h
 ```
 
 ## folder-Def
