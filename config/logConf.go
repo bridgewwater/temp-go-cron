@@ -8,6 +8,17 @@ import (
 	"os"
 )
 
+var zapLog zapLogger
+
+type zapLogger struct {
+	Log   *zap.Logger
+	Sugar *zap.SugaredLogger
+}
+
+func Sugar() *zap.SugaredLogger {
+	return zapLog.Sugar
+}
+
 // Initialization log
 func (c *Config) initLog() error {
 
@@ -35,47 +46,58 @@ func (c *Config) initLog() error {
 		Compress:   viper.GetBool("zap.rotate.Compress"),   // need compress
 	}
 
+	encoder := filterZapEncoder(encoderConfig)
+
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(encoderConfig), // Encoder configuration
+		encoder, // Encoder configuration
 		zapcore.NewMultiWriteSyncer(
 			zapcore.AddSync(os.Stdout),
 			zapcore.AddSync(&rotateLogger),
 		), // Print to console and file
 		atomicLevel, // Log level
 	)
+	var filed zap.Option
+	if viper.GetBool("zap.FieldsAuto") {
+		filed = zap.Fields( //the initialization field
+			zap.String(viper.GetString("zap.Fields.Key"), viper.GetString("zap.Fields.Val")),
+		)
+	}
 
-	filed := zap.Fields(zap.String(viper.GetString("zap.Fields.Key"), viper.GetString("zap.Fields.Val"))) //the initialization fieldv
 	var logZap *zap.Logger
-	if viper.GetBool("zap.AddCaller") {
-		if viper.GetBool("zap.Development") { // Open file and line number
+	if viper.GetBool("zap.Development") {
+		if filed != nil {
 			logZap = zap.New(core, zap.AddCaller(), zap.Development(), filed)
 		} else {
-			logZap = zap.New(core, zap.AddCaller(), filed)
+			logZap = zap.New(core, zap.AddCaller(), zap.Development())
 		}
 	} else {
-		if viper.GetBool("zap.Development") { // Open file and line number
-			logZap = zap.New(core, zap.AddCaller(), zap.Development(), filed)
+		if filed != nil {
+			logZap = zap.New(core, filed)
 		} else {
-			logZap = zap.New(core, zap.AddCaller(), filed)
+			logZap = zap.New(core)
 		}
 	}
+
 	logZap.Debug("log init success")
-
-	baseConf.Log = logZap
-	baseConf.Sugar = logZap.Sugar()
-
-	//passLagerCfg := log.PassLagerCfg{
-	//	Writers:        viper.GetString("log.writers"),
-	//	LoggerLevel:    viper.GetString("log.logger_level"),
-	//	LoggerFile:     viper.GetString("log.logger_file"),
-	//	LogFormatText:  viper.GetBool("log.log_format_text"),
-	//	RollingPolicy:  viper.GetString("log.rollingPolicy"),
-	//	LogRotateDate:  viper.GetInt("log.log_rotate_date"),
-	//	LogRotateSize:  viper.GetInt("log.log_rotate_size"),
-	//	LogBackupCount: viper.GetInt("log.log_backup_count"),
-	//}
-	//err := log.InitWithConfig(&passLagerCfg)
+	zapLog = zapLogger{
+		Log:   logZap,
+		Sugar: logZap.Sugar(),
+	}
 	return nil
+}
+
+func filterZapEncoder(encoderConfig zapcore.EncoderConfig) zapcore.Encoder {
+	var encoder zapcore.Encoder
+	zapEncoding := viper.GetString("zap.Encoding")
+	switch zapEncoding {
+	default:
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
+	case "json":
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
+	case "console":
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
+	}
+	return encoder
 }
 
 func filterZapAtomicLevelByViper() zapcore.Level {

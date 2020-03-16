@@ -34,7 +34,7 @@ func main() {
 		config.Sugar().Errorf("init cron error err: %v", err)
 		panic(err)
 	}
-	config.Sugar().Debugf("heartBitID run at %v", heartBitID)
+	config.Sugar().Infof("heartBitID run at %v", heartBitID)
 	c.Start()
 	select {}
 }

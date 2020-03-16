@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bridgewwater/temp-go-cron/util/sys"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"net/url"
 	"strings"
 )
@@ -14,16 +13,10 @@ var baseConf BaseConf
 type BaseConf struct {
 	BaseURL   string
 	SSLEnable bool
-	Log       *zap.Logger
-	Sugar     *zap.SugaredLogger
 }
 
 func BaseURL() string {
 	return baseConf.BaseURL
-}
-
-func Sugar() *zap.SugaredLogger {
-	return baseConf.Sugar
 }
 
 // read default config by conf/config.yaml
