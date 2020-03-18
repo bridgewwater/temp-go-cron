@@ -61,7 +61,7 @@ zap:
   Development: true # is open Open file and line number
   Encoding: console # output format, only use console or json, default is console
   rotate:
-    Filename: log/go-cron.log # Log file path
+    Filename: log/temp-go-cron.log # Log file path
     MaxSize: 16 # Maximum size of each log file, Unit: M
     MaxBackups: 10 # How many backups are saved in the log file
     MaxAge: 7 # How many days can the file be keep, Unit: day
